@@ -10,7 +10,7 @@ function M.debug(prefix, data)
 end
 
 function M.send_notification(msg, status)
-  if msg ~= nil and msg == last_msg then
+  if status ~= "error" and msg ~= nil and msg == last_msg then
     return
   end
 
@@ -23,9 +23,11 @@ function M.send_notification(msg, status)
       timeout = 5000,
     })
 
-    vim.defer_fn(function()
-      last_msg = nil
-    end, 5000)
+    if status ~= "error" then
+      vim.defer_fn(function()
+        last_msg = nil
+      end, 5000)
+    end
   else
     return
   end

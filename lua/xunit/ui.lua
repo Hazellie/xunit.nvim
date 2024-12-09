@@ -61,12 +61,16 @@ end
 
 local function open_window()
   local bufnr = api.nvim_create_buf(false, true)
-  api.nvim_set_option_value("bufhidden", "wipe")
+  api.nvim_set_option_value(
+    "bufhidden",
+    "wipe",
+    { scope = "local", buf = bufnr }
+  )
 
   local conf = config.get()
 
-  local width = api.nvim_get_option_value("columns")
-  local height = api.nvim_get_option_value("lines")
+  local width = api.nvim_get_option_value("columns", { scope = "global" })
+  local height = api.nvim_get_option_value("lines", { scope = "global" })
 
   local win_height = math.ceil(height * 0.9 - 4)
   local win_width = math.ceil(width * 0.95)
@@ -172,9 +176,21 @@ function M.toggle_test_log(log)
   Xlwin_id = win_info.win_id
   Xlbufnr = win_info.bufnr
   Xlborder = win_info.border_buf
-  vim.api.nvim_set_option_value("modifiable", true)
-  vim.api.nvim_set_option_value("bufhidden", "delete")
-  vim.api.nvim_set_option_value("buftype", "acwrite")
+  vim.api.nvim_set_option_value(
+    "modifiable",
+    true,
+    { scope = "local", buf = Xlbufnr }
+  )
+  vim.api.nvim_set_option_value(
+    "bufhidden",
+    "delete",
+    { scope = "local", buf = Xlbufnr }
+  )
+  vim.api.nvim_set_option_value(
+    "buftype",
+    "acwrite",
+    { scope = "local", buf = Xlbufnr }
+  )
   vim.api.nvim_buf_set_name(Xlbufnr, "Testlog")
   api.nvim_buf_set_lines(Xlbufnr, 0, -1, false, {
     center_text("TEST RESULT"),
@@ -182,8 +198,12 @@ function M.toggle_test_log(log)
   api.nvim_buf_set_lines(Xlbufnr, 1, -1, false, {
     center_text("---------------"),
   })
-  api.nvim_buf_set_lines(Xlbufnr, 3, #log, false, log)
-  api.nvim_set_option_value("modifiable", false)
+  api.nvim_buf_set_lines(Xlbufnr, 3, (#log > 0) and #log or 4, false, log)
+  api.nvim_set_option_value(
+    "modifiable",
+    false,
+    { scope = "local", buf = Xlbufnr }
+  )
 end
 
 function M.toggle_quick_menu()
@@ -227,10 +247,26 @@ function M.toggle_quick_menu()
 
   vim.api.nvim_buf_set_name(Xbufnr, "Tests")
   vim.api.nvim_buf_set_lines(Xbufnr, 0, #contents, false, contents)
-  vim.api.nvim_set_option_value("modifiable", false)
-  vim.api.nvim_set_option_value("filetype", "harpoon")
-  vim.api.nvim_set_option_value("buftype", "acwrite")
-  vim.api.nvim_set_option_value("bufhidden", "delete")
+  vim.api.nvim_set_option_value(
+    "modifiable",
+    false,
+    { scope = "local", buf = Xlbufnr }
+  )
+  vim.api.nvim_set_option_value(
+    "filetype",
+    "harpoon",
+    { scope = "local", buf = Xlbufnr }
+  )
+  vim.api.nvim_set_option_value(
+    "buftype",
+    "acwrite",
+    { scope = "local", buf = Xlbufnr }
+  )
+  vim.api.nvim_set_option_value(
+    "bufhidden",
+    "delete",
+    { scope = "local", buf = Xlbufnr }
+  )
   vim.api.nvim_win_set_cursor(0, { 5, 0 })
   vim.api.nvim_buf_set_keymap(
     Xbufnr,

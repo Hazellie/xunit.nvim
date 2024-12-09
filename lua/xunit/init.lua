@@ -60,11 +60,19 @@ local function setup_cmd()
   end, {})
 
   cmd("XRunAll", function()
-    run.execute_all()
+    run.execute_all(false)
   end, {})
 
   cmd("XRunTest", function()
-    run.execute_test()
+    run.execute_test(false)
+  end, {})
+
+  cmd("XRunAllMono", function()
+    run.execute_all(true)
+  end, {})
+
+  cmd("XRunTestMono", function()
+    run.execute_test(true)
   end, {})
 
   cmd("XToggleLog", function()

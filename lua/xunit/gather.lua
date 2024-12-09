@@ -30,21 +30,19 @@ function M.using_xunit(bufnr)
   local syntax_tree = language_tree:parse()
   local root = syntax_tree[1]:root()
 
-  local children = root:children()
-  for _, child in ipairs(children) do
-    print(vim.inspect(child))
-  end
-
   local q_using_xunit = vim.treesitter.query.parse(
     "c_sharp",
     [[
       (using_directive) @using  
     ]]
   )
+
   local using = false
   local directive
   for _, captures in q_using_xunit:iter_matches(root, bufnr) do
-    directive = vim.treesitter.get_node_text(captures[1], bufnr)
+    local capture = captures[1][1]
+
+    directive = vim.treesitter.get_node_text(capture, bufnr)
     if directive and string.find(directive, "Xunit") then
       using = true
     end
@@ -66,9 +64,13 @@ function M.gather()
   local q_namespace = vim.treesitter.query.parse(
     "c_sharp",
     [[
-  (namespace_declaration
-    name: (qualified_name) @namespace) 
-]]
+    ;; Match both normal and file-scoped namespace declarations
+    (namespace_declaration
+      name: (qualified_name) @namespace)
+
+    (file_scoped_namespace_declaration
+      name: (qualified_name) @namespace)
+  ]]
   )
 
   local q_classname = vim.treesitter.query.parse(
@@ -101,14 +103,14 @@ function M.gather()
   -- get namespace
   local ns
   for _, captures in q_namespace:iter_matches(root, bufnr) do
-    ns = vim.treesitter.get_node_text(captures[1], bufnr)
+    ns = vim.treesitter.get_node_text(captures[1][1], bufnr)
   end
-  local namespace = api.nvim_create_namespace(ns)
+  local namespace = vim.api.nvim_create_namespace(ns)
 
   -- get classname
   local cls
   for _, captures, _ in q_classname:iter_matches(root, bufnr) do
-    cls = vim.treesitter.get_node_text(captures[1], bufnr)
+    cls = vim.treesitter.get_node_text(captures[1][1], bufnr)
   end
 
   -- get all tests in buffer
@@ -120,7 +122,7 @@ function M.gather()
     if captures[1] then
       table.insert(tests, {
         id = i,
-        name = vim.treesitter.get_node_text(captures[3], bufnr),
+        name = vim.treesitter.get_node_text(captures[3][1], bufnr),
         fact = true,
         inlines = {},
         line = metadata[5].range[1],
@@ -149,7 +151,7 @@ function M.gather()
       end
       table.insert(tests, {
         id = i,
-        name = vim.treesitter.get_node_text(captures[3], bufnr),
+        name = vim.treesitter.get_node_text(captures[3][1], bufnr),
         fact = false,
         inlines = inlines,
         line = metadata[5].range[1],

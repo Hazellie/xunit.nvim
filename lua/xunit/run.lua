@@ -130,7 +130,7 @@ function M.show_test_log()
 end
 
 -- execute every test found in buffer
-function M.execute_all()
+function M.execute_all(is_mono)
   local bufnr = api.nvim_get_current_buf()
   local globs = require("xunit.gather").xunit_globs[bufnr]
   local command = config.command
@@ -143,7 +143,14 @@ function M.execute_all()
     return
   end
 
-  local targs = { "test", "-v", verb }
+  local targs
+
+  targs = { "dotnet", "test", "-v", verb }
+
+  if is_mono then
+    targs = { "dotnet", "build", "-t:Test" }
+  end
+
   local t = command.targs
 
   -- add user conf to argument list
@@ -158,25 +165,21 @@ function M.execute_all()
   local cwd = vim.fn.expand("%:h")
 
   if command.clean then
-    Job
-      :new({
-        command = "dotnet",
-        args = cargs,
-        cwd = cwd,
-      })
-      :sync()
+    Job:new({
+      command = "dotnet",
+      args = cargs,
+      cwd = cwd,
+    }):sync()
   end
 
-  Job
-    :new({
-      command = "dotnet",
-      args = targs,
-      cwd = cwd,
-      on_exit = function(j)
-        test_data = j:result()
-      end,
-    })
-    :sync()
+  Job:new({
+    command = "dotnet",
+    args = targs,
+    cwd = cwd,
+    on_exit = function(j)
+      test_data = j:result()
+    end,
+  }):sync()
 
   local passed, ftests = analyze_all(bufnr, globs)
   if passed then
@@ -194,7 +197,7 @@ function M.execute_all()
 end
 
 -- execute selected test
-function M.execute_test()
+function M.execute_test(is_mono)
   local bufnr = api.nvim_get_current_buf()
   local win = api.nvim_get_current_win()
   local globs = require("xunit.gather").xunit_globs[bufnr]
@@ -231,16 +234,21 @@ function M.execute_test()
 
   if r >= x1 and r <= x2 then
     if command.clean then
-      Job
-        :new({
-          command = "dotnet",
-          args = cargs,
-          cwd = cwd,
-        })
-        :sync()
+      Job:new({
+        command = "dotnet",
+        args = cargs,
+        cwd = cwd,
+      }):sync()
     end
 
-    local targs = { "dotnet", "test", "-v", verb }
+    local targs
+
+    targs = { "dotnet", "test", "-v", verb }
+
+    if is_mono then
+      targs = { "dotnet", "build", "-t:Test" }
+    end
+
     local t = command.targs
     for _, arg in ipairs(t) do
       table.insert(targs, arg)

@@ -30,9 +30,10 @@ function M.using_xunit(bufnr)
   local syntax_tree = language_tree:parse()
   local root = syntax_tree[1]:root()
 
-  -- print(vim.inspect(language_tree))
-  print(vim.inspect(syntax_tree))
-  print(vim.inspect(root))
+  local children = root:children()
+  for _, child in ipairs(children) do
+    print(vim.inspect(child))
+  end
 
   local q_using_xunit = vim.treesitter.query.parse(
     "c_sharp",

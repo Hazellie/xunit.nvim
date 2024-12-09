@@ -27,10 +27,6 @@ end
 -- check if using_directive "using Xunit" exists in the file
 function M.using_xunit(bufnr)
   local language_tree = vim.treesitter.get_parser(bufnr, "c_sharp")
-  if not language_tree then
-    return false -- If parser fails, assume no Xunit usage
-  end
-
   local syntax_tree = language_tree:parse()
   local root = syntax_tree[1]:root()
 
@@ -40,20 +36,18 @@ function M.using_xunit(bufnr)
       (using_directive) @using  
     ]]
   )
-
   local using = false
+  local directive
+  for _, captures in q_using_xunit:iter_matches(root, bufnr) do
+    print(vim.inspect(captures))
+    print(vim.inspect(captures[0]))
+    print(vim.inspect(captures[1]))
 
-  for _, captures, _ in q_using_xunit:iter_matches(root, bufnr) do
-    local node = captures[1]
-    if node then
-      local directive = vim.treesitter.get_node_text(node, bufnr)
-      if directive and string.find(directive, "Xunit") then
-        using = true
-        break
-      end
+    directive = vim.treesitter.get_node_text(captures[1], bufnr)
+    if directive and string.find(directive, "Xunit") then
+      using = true
     end
   end
-
   return using
 end
 

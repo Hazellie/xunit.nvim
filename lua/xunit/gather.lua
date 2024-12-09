@@ -49,7 +49,6 @@ end
 
 function M.gather()
   -- local api = vim.api
-  local q = require("vim.treesitter.query")
   -- local namespace = vim.api.nvim_create_namespace("xunit")
   local bufnr = vim.api.nvim_get_current_buf()
 
@@ -59,7 +58,7 @@ function M.gather()
   local root = syntax_tree[1]:root()
 
   -- ts queries
-  local q_namespace = vim.treesitter.parse_query(
+  local q_namespace = vim.treesitter.query.parse(
     "c_sharp",
     [[
   (namespace_declaration
@@ -67,7 +66,7 @@ function M.gather()
 ]]
   )
 
-  local q_classname = vim.treesitter.parse_query(
+  local q_classname = vim.treesitter.query.parse(
     "c_sharp",
     [[
   (class_declaration
@@ -75,7 +74,7 @@ function M.gather()
 ]]
   )
 
-  local q_test_case = vim.treesitter.parse_query(
+  local q_test_case = vim.treesitter.query.parse(
     "c_sharp",
     [[
     (class_declaration
@@ -97,14 +96,14 @@ function M.gather()
   -- get namespace
   local ns
   for _, captures in q_namespace:iter_matches(root, bufnr) do
-    ns = q.get_node_text(captures[1], bufnr)
+    ns = vim.treesitter.get_node_text(captures[1], bufnr)
   end
   local namespace = api.nvim_create_namespace(ns)
 
   -- get classname
   local cls
   for _, captures, _ in q_classname:iter_matches(root, bufnr) do
-    cls = q.get_node_text(captures[1], bufnr)
+    cls = vim.treesitter.get_node_text(captures[1], bufnr)
   end
 
   -- get all tests in buffer
@@ -116,7 +115,7 @@ function M.gather()
     if captures[1] then
       table.insert(tests, {
         id = i,
-        name = q.get_node_text(captures[3], bufnr),
+        name = vim.treesitter.get_node_text(captures[3], bufnr),
         fact = true,
         inlines = {},
         line = metadata[5].range[1],
@@ -145,7 +144,7 @@ function M.gather()
       end
       table.insert(tests, {
         id = i,
-        name = q.get_node_text(captures[3], bufnr),
+        name = vim.treesitter.get_node_text(captures[3], bufnr),
         fact = false,
         inlines = inlines,
         line = metadata[5].range[1],

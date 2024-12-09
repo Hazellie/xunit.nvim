@@ -46,6 +46,7 @@ local function setup_autocmd()
     pattern = "*.cs",
     callback = function()
       local bufnr = api.nvim_get_current_buf()
+      print(vim.inspect(bufnr))
       if gather.using_xunit(bufnr) then
         gather.gather()
       end

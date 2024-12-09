@@ -30,7 +30,7 @@ function M.using_xunit(bufnr)
   local syntax_tree = language_tree:parse()
   local root = syntax_tree[1]:root()
 
-  print(vim.inspect(language_tree))
+  -- print(vim.inspect(language_tree))
   print(vim.inspect(syntax_tree))
   print(vim.inspect(root))
 

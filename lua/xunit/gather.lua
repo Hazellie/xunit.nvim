@@ -32,7 +32,7 @@ function M.using_xunit(bufnr)
   local syntax_tree = language_tree:parse()
   local root = syntax_tree[1]:root()
 
-  local q_using_xunit = vim.treesitter.parse_query(
+  local q_using_xunit = vim.treesitter.query.parse(
     "c_sharp",
     [[
       (using_directive) @using  

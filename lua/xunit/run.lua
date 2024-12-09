@@ -78,7 +78,7 @@ local function analyze_all(bufnr, globs)
   local passed = true
   -- store every failed test output
   for i, line in ipairs(test_data) do
-    if line.find(line, "Failed") then
+    if line.find(line, "Failed") or line.find(line, "[FAIL]") then
       table.insert(foutput, i, { line })
     end
   end
@@ -183,10 +183,10 @@ function M.execute_all(is_mono)
 
   local passed, ftests = analyze_all(bufnr, globs)
   if passed then
-    u.send_notification("Testrun finished. All tests passed!", "info")
+    u.send_notification("Test run finished. All tests passed!", "info")
   else
     local msg =
-      "Testrun finished. There have been issues\nwith the following tests:\n\n"
+      "Test run finished. There have been issues\nwith the following tests:\n\n"
 
     for _, test in ipairs(ftests) do
       msg = msg .. test .. "\n"
@@ -271,7 +271,7 @@ function M.execute_test(is_mono)
       virt.running,
       "XVirtNormal"
     )
-    u.send_notification("Starting testrun..", "info")
+    u.send_notification("Starting test run..", "info")
     test_data = {}
     -- not using plenary's Job module, since it prevents from setting extmarks
     vim.fn.jobstart(targs, {
@@ -302,7 +302,7 @@ function M.execute_test(is_mono)
           )
           -- use this inside if to only notify when not in buffer with test api.nvim_get_current_buf() ~= bufnr
           u.send_notification(
-            "Testrun for " .. test.name .. " in " .. file .. " passed!",
+            "Test run for " .. test.name .. " in " .. file .. " passed!",
             "info"
           )
         else
@@ -315,7 +315,7 @@ function M.execute_test(is_mono)
             "XVirtFailed"
           )
           u.send_notification(
-            "Testrun for " .. test.name .. " failed.",
+            "Test run for " .. test.name .. " failed.",
             "error"
           )
         end

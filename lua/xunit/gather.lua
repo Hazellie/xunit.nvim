@@ -40,7 +40,7 @@ function M.using_xunit(bufnr)
   local using = false
   local directive
   for _, captures in q_using_xunit:iter_matches(root, bufnr) do
-    local capture = captures[1][1]
+    local capture = captures[1]
 
     directive = vim.treesitter.get_node_text(capture, bufnr)
     if directive and string.find(directive, "Xunit") then
@@ -103,14 +103,14 @@ function M.gather()
   -- get namespace
   local ns
   for _, captures in q_namespace:iter_matches(root, bufnr) do
-    ns = vim.treesitter.get_node_text(captures[1][1], bufnr)
+    ns = vim.treesitter.get_node_text(captures[1], bufnr)
   end
   local namespace = vim.api.nvim_create_namespace(ns)
 
   -- get classname
   local cls
   for _, captures, _ in q_classname:iter_matches(root, bufnr) do
-    cls = vim.treesitter.get_node_text(captures[1][1], bufnr)
+    cls = vim.treesitter.get_node_text(captures[1], bufnr)
   end
 
   -- get all tests in buffer
@@ -122,7 +122,7 @@ function M.gather()
     if captures[1] then
       table.insert(tests, {
         id = i,
-        name = vim.treesitter.get_node_text(captures[3][1], bufnr),
+        name = vim.treesitter.get_node_text(captures[3], bufnr),
         fact = true,
         inlines = {},
         line = metadata[5].range[1],
@@ -151,7 +151,7 @@ function M.gather()
       end
       table.insert(tests, {
         id = i,
-        name = vim.treesitter.get_node_text(captures[3][1], bufnr),
+        name = vim.treesitter.get_node_text(captures[3], bufnr),
         fact = false,
         inlines = inlines,
         line = metadata[5].range[1],

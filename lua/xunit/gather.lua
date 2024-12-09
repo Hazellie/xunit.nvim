@@ -30,6 +30,10 @@ function M.using_xunit(bufnr)
   local syntax_tree = language_tree:parse()
   local root = syntax_tree[1]:root()
 
+  print(vim.inspect(language_tree))
+  print(vim.inspect(syntax_tree))
+  print(vim.inspect(root))
+
   local q_using_xunit = vim.treesitter.query.parse(
     "c_sharp",
     [[
@@ -39,10 +43,6 @@ function M.using_xunit(bufnr)
   local using = false
   local directive
   for _, captures in q_using_xunit:iter_matches(root, bufnr) do
-    print(vim.inspect(captures))
-    print(vim.inspect(captures[0]))
-    print(vim.inspect(captures[1]))
-
     directive = vim.treesitter.get_node_text(captures[1], bufnr)
     if directive and string.find(directive, "Xunit") then
       using = true
